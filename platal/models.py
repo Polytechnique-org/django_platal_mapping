@@ -63,7 +63,7 @@ class Skin(models.Model):
 class EmailVirtualDomain(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=765)
-    aliasing = models.ForeignKey('self', db_column='aliasing')
+    aliasing = models.ForeignKey('self', db_column='aliasing', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'email_virtual_domains'
@@ -98,7 +98,7 @@ class GeolocCountry(models.Model):
     phoneprefix = models.IntegerField(null=True, db_column='phonePrefix', blank=True) # Field name made lowercase.
     phoneformat = models.CharField(max_length=765, db_column='phoneFormat') # Field name made lowercase.
     licenseplate = models.CharField(max_length=12, db_column='licensePlate', blank=True) # Field name made lowercase.
-    belongsto = models.ForeignKey('self', null=True, db_column='belongsTo', blank=True) # Field name made lowercase.
+    belongsto = models.ForeignKey('self', null=True, db_column='belongsTo', blank=True, on_delete=models.CASCADE) # Field name made lowercase.
     countryplain = models.CharField(max_length=765, db_column='countryPlain', blank=True) # Field name made lowercase.
 
     class Meta:
@@ -129,7 +129,7 @@ class AccountType(models.Model):
 class Account(models.Model):
     uid = models.AutoField(primary_key=True)
     hruid = models.CharField(max_length=255, unique=True)
-    type = models.ForeignKey(AccountType, null=True, db_column='type', blank=True)
+    type = models.ForeignKey(AccountType, null=True, db_column='type', blank=True, on_delete=models.CASCADE)
     user_perms = models.CharField(max_length=288, blank=True)
     is_admin = models.BooleanField(default=False)
     state = models.CharField(max_length=24)
@@ -148,9 +148,9 @@ class Account(models.Model):
     display_name = models.CharField(max_length=765, blank=True)
     sex = models.CharField(max_length=18)
     email_format = models.CharField(max_length=12)
-    skin = models.ForeignKey(Skin, null=True, db_column='skin', blank=True)
+    skin = models.ForeignKey(Skin, null=True, db_column='skin', blank=True, on_delete=models.CASCADE)
     last_version = models.CharField(max_length=48)
-    best_domain = models.ForeignKey(EmailVirtualDomain, null=True, db_column='best_domain', blank=True)
+    best_domain = models.ForeignKey(EmailVirtualDomain, null=True, db_column='best_domain', blank=True, on_delete=models.CASCADE)
     from_email = models.CharField(max_length=765)
     from_format = models.CharField(max_length=12)
 
@@ -218,15 +218,15 @@ class Profile(models.Model):
     deathdate = models.DateField(null=True, blank=True)
     deathdate_rec = models.DateField(null=True, blank=True)
     sex = models.CharField(max_length=18)
-    section = models.ForeignKey(ProfileSectionEnum, null=True, db_column='section', blank=True)
+    section = models.ForeignKey(ProfileSectionEnum, null=True, db_column='section', blank=True, on_delete=models.CASCADE)
     cv = models.TextField(blank=True)
     freetext = models.TextField(blank=True)
     freetext_pub = models.CharField(max_length=21)
     medals_pub = models.CharField(max_length=21)
     alias_pub = models.CharField(max_length=21)
-    nationality1 = models.ForeignKey(GeolocCountry, null=True, db_column='nationality1', blank=True, related_name='natives')
-    nationality2 = models.ForeignKey(GeolocCountry, null=True, db_column='nationality2', blank=True, related_name='second_natives')
-    nationality3 = models.ForeignKey(GeolocCountry, null=True, db_column='nationality3', blank=True, related_name='third_natives')
+    nationality1 = models.ForeignKey(GeolocCountry, null=True, db_column='nationality1', blank=True, related_name='natives', on_delete=models.CASCADE)
+    nationality2 = models.ForeignKey(GeolocCountry, null=True, db_column='nationality2', blank=True, related_name='second_natives', on_delete=models.CASCADE)
+    nationality3 = models.ForeignKey(GeolocCountry, null=True, db_column='nationality3', blank=True, related_name='third_natives', on_delete=models.CASCADE)
     email_directory = models.CharField(max_length=765, blank=True)
     last_change = models.DateField()
     title = models.CharField(max_length=12)
@@ -248,8 +248,8 @@ class Profile(models.Model):
 
 @python_2_unicode_compatible
 class AccountProfile(models.Model):
-    account = models.ForeignKey(Account, db_column='uid', related_name='profiles')
-    profile = models.ForeignKey(Profile, db_column='pid', related_name='accounts')
+    account = models.ForeignKey(Account, db_column='uid', related_name='profiles', on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, db_column='pid', related_name='accounts', on_delete=models.CASCADE)
     perms = models.CharField(max_length=15)
 
     class Meta:
@@ -267,7 +267,7 @@ class AccountProfile(models.Model):
 @python_2_unicode_compatible
 class EmailVirtual(models.Model):
     email = models.CharField(max_length=255)
-    domain = models.ForeignKey(EmailVirtualDomain, db_column='domain')
+    domain = models.ForeignKey(EmailVirtualDomain, db_column='domain', on_delete=models.CASCADE)
     redirect = models.CharField(max_length=765)
     type = models.CharField(max_length=21, blank=True)
     expire = models.DateField()
@@ -282,7 +282,7 @@ class EmailVirtual(models.Model):
 
 @python_2_unicode_compatible
 class EmailRedirectAccount(models.Model):
-    account = models.ForeignKey(Account, db_column='uid')
+    account = models.ForeignKey(Account, db_column='uid', on_delete=models.CASCADE)
     redirect = models.CharField(max_length=765)
     rewrite = models.CharField(max_length=765)
     type = models.CharField(max_length=30)
@@ -305,8 +305,8 @@ class EmailRedirectAccount(models.Model):
 @python_2_unicode_compatible
 class EmailSourceAccount(models.Model):
     email = models.CharField(max_length=255)
-    domain = models.ForeignKey(EmailVirtualDomain, db_column='domain')
-    account = models.ForeignKey(Account, db_column='uid')
+    domain = models.ForeignKey(EmailVirtualDomain, db_column='domain', on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, db_column='uid', on_delete=models.CASCADE)
     type = models.CharField(max_length=9)
     flags = models.CharField(max_length=23)
     expire = models.DateField(blank=True, null=True)
@@ -322,7 +322,7 @@ class EmailSourceAccount(models.Model):
 @python_2_unicode_compatible
 class EmailSourceOther(models.Model):
     email = models.CharField(max_length=255)
-    domain = models.ForeignKey(EmailVirtualDomain, db_column='domain')
+    domain = models.ForeignKey(EmailVirtualDomain, db_column='domain', on_delete=models.CASCADE)
     hrmid = models.CharField(max_length=255)
     type = models.CharField(max_length=8, blank=True, null=True)
     expire = models.DateField(blank=True, null=True)
@@ -337,7 +337,7 @@ class EmailSourceOther(models.Model):
 
 @python_2_unicode_compatible
 class EmailRedirectOther(models.Model):
-    hrmid = models.ForeignKey(EmailSourceOther, db_column='hrmid')
+    hrmid = models.ForeignKey(EmailSourceOther, db_column='hrmid', on_delete=models.CASCADE)
     redirect = models.CharField(max_length=255)
     type = models.CharField(max_length=10)
     action = models.CharField(max_length=18)
@@ -355,7 +355,7 @@ class EmailRedirectOther(models.Model):
 
 
 class GappsAccount(models.Model):
-    l_userid = models.ForeignKey(Account, null=True, db_column='l_userid', blank=True)
+    l_userid = models.ForeignKey(Account, null=True, db_column='l_userid', blank=True, on_delete=models.CASCADE)
     l_sync_password = models.BooleanField(default=True)
     l_activate_mail_redirection = models.BooleanField(default=True)
     g_account_id = models.CharField(max_length=48, blank=True)
@@ -376,7 +376,7 @@ class GappsAccount(models.Model):
 
 
 class GappsNickname(models.Model):
-    l_userid = models.ForeignKey(Account, null=True, db_column='l_userid', blank=True)
+    l_userid = models.ForeignKey(Account, null=True, db_column='l_userid', blank=True, on_delete=models.CASCADE)
     g_account_name = models.CharField(max_length=768)
     g_nickname = models.CharField(max_length=255, primary_key=True)
 
@@ -386,8 +386,8 @@ class GappsNickname(models.Model):
 
 class GappsQueue(models.Model):
     q_id = models.AutoField(primary_key=True)
-    q_owner = models.ForeignKey(Account, null=True, blank=True, related_name='owned_gapps_jobs')
-    q_recipient = models.ForeignKey(Account, null=True, blank=True, related_name='received_gapps_jobs')
+    q_owner = models.ForeignKey(Account, null=True, blank=True, related_name='owned_gapps_jobs', on_delete=models.CASCADE)
+    q_recipient = models.ForeignKey(Account, null=True, blank=True, related_name='received_gapps_jobs', on_delete=models.CASCADE)
     p_entry_date = models.DateTimeField()
     p_notbefore_date = models.DateTimeField()
     p_start_date = models.DateTimeField(null=True, blank=True)
@@ -470,7 +470,7 @@ class EmailListModerate(models.Model):
     ml = models.CharField(max_length=192)
     domain = models.CharField(max_length=192)
     mid = models.IntegerField()
-    account = models.ForeignKey(Account, null=True, db_column='uid', blank=True)
+    account = models.ForeignKey(Account, null=True, db_column='uid', blank=True, on_delete=models.CASCADE)
     action = models.CharField(max_length=18)
     ts = models.DateTimeField()
     message = models.TextField(blank=True)
@@ -482,7 +482,7 @@ class EmailListModerate(models.Model):
 
 
 class EmailSendSave(models.Model):
-    account = models.OneToOneField(Account, primary_key=True, db_column='uid')
+    account = models.OneToOneField(Account, primary_key=True, db_column='uid', on_delete=models.CASCADE)
     data = models.TextField()
 
     class Meta:
@@ -490,7 +490,7 @@ class EmailSendSave(models.Model):
 
 class HomonymList(models.Model):
     hrmid = models.CharField(max_length=765)
-    account = models.ForeignKey(Account, db_column='uid')
+    account = models.ForeignKey(Account, db_column='uid', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'homonyms_list'
