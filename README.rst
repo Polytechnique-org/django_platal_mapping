@@ -11,6 +11,7 @@ Install this app in your virtualenv (using pip).
 Alter your `settings.py` as follows:
 
 .. code-block:: python
+
     import getconf
     CONFIG = getconf.ConfigGetter('###', [os.path.join(BASE_DIR, 'local_settings.ini')])
 
